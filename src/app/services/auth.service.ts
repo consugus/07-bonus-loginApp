@@ -26,13 +26,13 @@ export class AuthService {
   // ====================================
   // https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=[API_KEY]
 
+
   constructor( private http:HttpClient ) {
     this.getToken();
    }
 
 
   logout(  ){
-    // TODO: code here
     localStorage.removeItem('token');
    }
 
@@ -70,6 +70,9 @@ export class AuthService {
   private setToken(idToken:string){
     this.userToken = idToken;
     localStorage.setItem('token', idToken);
+
+    let expirationTime = new Date().setSeconds( 3600 );
+    localStorage.setItem( 'expirationTime', expirationTime.toString() );
   }
 
   getToken(){
@@ -79,4 +82,26 @@ export class AuthService {
     return this.userToken;
   }
 
-}
+  autenticated(): boolean{
+
+    if( this.userToken.length < 2 ){
+      return false;
+    }
+
+    let expirationTime = new Date()
+    if( localStorage.getItem('expirationTime') ){
+      expirationTime.setTime(Number(localStorage.getItem('expirationTime')));
+    }
+
+    if( expirationTime < new Date() ){
+      return false
+    }
+
+    return true;
+
+  }
+
+
+
+
+} // end AuthService class
